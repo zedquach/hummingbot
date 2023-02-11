@@ -1192,6 +1192,7 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
         top_bid_price = s_decimal_nan
         top_ask_price = s_decimal_nan
         next_price_below_top_ask = s_decimal_nan
+        next_price_above_top_bid = s_decimal_nan
 
         # Convert maker order size (in maker base asset) to taker order size (in taker base asset)
         _, _, quote_rate, base_pair, _, base_rate, _, _, _ = self.get_conversion_rates(market_pair)
@@ -1208,7 +1209,7 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
                     market_pair.maker.trading_pair,
                     top_bid_price
                 )
-                price_above_bid = (ceil(top_bid_price / price_quantum) + 1) * price_quantum
+                next_price_below_top_ask = (floor(top_ask_price / price_quantum) - 1) * price_quantum
 
             if self.is_gateway_market(market_pair.taker):
                 taker_price = await taker_market.get_order_price(taker_trading_pair,
@@ -1236,8 +1237,8 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
             # # If your bid is higher than highest bid price, reduce it to one tick above the top bid price
             if self.adjust_order_enabled:
                 # If maker bid order book is not empty
-                if not Decimal.is_nan(price_above_bid):
-                    maker_price = min(maker_price, price_above_bid)
+
+                maker_price = min(maker_price, next_price_below_top_ask)
 
             price_quantum = maker_market.get_order_price_quantum(
                 market_pair.maker.trading_pair,
@@ -1257,7 +1258,7 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
                     market_pair.maker.trading_pair,
                     top_ask_price
                 )
-                next_price_below_top_ask = (floor(top_ask_price / price_quantum) - 1) * price_quantum
+                next_price_above_top_bid =(ceil(top_bid_price / price_quantum) + 1) * price_quantum
 
             if self.is_gateway_market(market_pair.taker):
                 taker_price = await taker_market.get_order_price(taker_trading_pair,
@@ -1282,7 +1283,7 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
             if self.adjust_order_enabled:
                 # If maker ask order book is not empty
                 if not Decimal.is_nan(next_price_below_top_ask):
-                    maker_price = max(maker_price, next_price_below_top_ask)
+                    maker_price = max(maker_price, next_price_above_top_bid)
 
             price_quantum = maker_market.get_order_price_quantum(
                 market_pair.maker.trading_pair,
