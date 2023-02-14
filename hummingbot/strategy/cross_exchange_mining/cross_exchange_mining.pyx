@@ -559,9 +559,9 @@ cdef class CrossExchangeMiningStrategy(StrategyBase):
 
         amt = market_info.market.c_quantize_order_amount(market_pair.maker.trading_pair, amount)
         if is_buy:
-            order_id = StrategyBase.c_buy_with_specific_market(self, market_info, amount, order_type=order_type, price=price, expiration_seconds=NaN)
+            order_id = StrategyBase.c_buy_with_specific_market(self, market_info, amt, order_type=order_type, price=price, expiration_seconds=NaN)
         else:
-            order_id = StrategyBase.c_sell_with_specific_market(self, market_info, amount, order_type=order_type, price=price, expiration_seconds=NaN)
+            order_id = StrategyBase.c_sell_with_specific_market(self, market_info, amt, order_type=order_type, price=price, expiration_seconds=NaN)
         # market_trading_pair_tuple = self._sb_order_tracker.c_get_market_pair_from_order_id(order_id)
         mid_price = market_info.get_mid_price()
         if is_limit:
