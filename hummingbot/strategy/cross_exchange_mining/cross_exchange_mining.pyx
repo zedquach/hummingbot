@@ -557,7 +557,7 @@ cdef class CrossExchangeMiningStrategy(StrategyBase):
             object market_info = market_pair.maker if is_maker else market_pair.taker
             object order_type = market_info.market.get_maker_order_type() if is_limit else market_info.market.get_taker_order_type()
 
-        # amount = amount * Decimal(1 - self._tol_o)
+        amount = market_info.market.c_quantize_order_amount(market_pair.maker.trading_pair, amount)
         if is_buy:
             order_id = StrategyBase.c_buy_with_specific_market(self, market_info, amount, order_type=order_type, price=price, expiration_seconds=NaN)
         else:
