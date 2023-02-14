@@ -557,7 +557,7 @@ cdef class CrossExchangeMiningStrategy(StrategyBase):
             object market_info = market_pair.maker if is_maker else market_pair.taker
             object order_type = market_info.market.get_maker_order_type() if is_limit else market_info.market.get_taker_order_type()
 
-        amount = market_info.market.c_quantize_order_amount(market_pair.maker.trading_pair, amount)
+        amt = market_info.market.c_quantize_order_amount(market_pair.maker.trading_pair, amount)
         if is_buy:
             order_id = StrategyBase.c_buy_with_specific_market(self, market_info, amount, order_type=order_type, price=price, expiration_seconds=NaN)
         else:
@@ -565,10 +565,10 @@ cdef class CrossExchangeMiningStrategy(StrategyBase):
         # market_trading_pair_tuple = self._sb_order_tracker.c_get_market_pair_from_order_id(order_id)
         mid_price = market_info.get_mid_price()
         if is_limit:
-            StrategyBase.start_tracking_limit_order(self, market_info, order_id, is_buy, price, amount)
-            self.logger().info(f"Maker Order Created: {market_pair.maker.trading_pair}, Amount: {round(amount, 3)}, Price: {round(price, 3)}, Min profitability: {self.min_profitability} + {round(self._volatility_pct, 5)} + {round(self._min_prof_adj, 5)}, % from Mid Market: {round(((max(price, mid_price)/min(price, mid_price))-1)*100, 3)} ")
+            StrategyBase.start_tracking_limit_order(self, market_info, order_id, is_buy, price, amt)
+            self.logger().info(f"Maker Order Created: {market_pair.maker.trading_pair}, Amount: {amt}, Price: {price}, Min profitability: {self.min_profitability} + {round(self._volatility_pct, 5)} + {round(self._min_prof_adj, 5)}, % from Mid Market: {round(((max(price, mid_price)/min(price, mid_price))-1)*100, 3)} ")
         else:
-            self.logger().info(f"Taker Order Created: {market_pair.maker.trading_pair}, Amount: {round(amount, 3)}, Price: {round(price, 3)}, Min profitability: {self.min_profitability} + {round(self._volatility_pct, 5)} + {round(self._min_prof_adj, 5)}, % from Mid Market: {round(((max(price, mid_price)/min(price, mid_price))-1)*100, 3)} ")
+            self.logger().info(f"Taker Order Created: {market_pair.maker.trading_pair}, Amount: {amt}, Price: {price}, Min profitability: {self.min_profitability} + {round(self._volatility_pct, 5)} + {round(self._min_prof_adj, 5)}, % from Mid Market: {round(((max(price, mid_price)/min(price, mid_price))-1)*100, 3)} ")
             # self.notify_hb_app("Order Created: " + str(market_pair.maker.trading_pair) +" Amount: " + str(amount) + " Price: " + str(price) + " Min profitability: " + str(self.min_profitability) + " + " + str(self._volatility_pct) + " + " + str(self._min_prof_adj))
         return order_id
 
