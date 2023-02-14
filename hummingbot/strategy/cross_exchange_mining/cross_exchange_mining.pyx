@@ -289,6 +289,8 @@ cdef class CrossExchangeMiningStrategy(StrategyBase):
                 taker_buy_price = taker_market.c_get_vwap_for_volume(market_pair.taker.trading_pair, True, Decimal(order_amount_maker_sell)).result_price
                 # Therefore you can sell the amount for the price you would get if you bought on the taker market + min profitabilty
                 maker_set_price_sell = taker_buy_price * (1 + (self.min_profitability + self._volatility_pct + self._min_prof_adj))
+                maker_top_ask = maker_market.c_get_price(market_pair.maker.trading_pair, True).result_price
+                maker_set_price_sell = max(maker_set_price_sell, maker_top_ask)
                 # self.notify_hb_app("Looking to sell on maker, Can buy " + str(round(order_amount_maker_sell,2)) + " on taker for: " + str(round(taker_buy_price,5)) + " so sell on maker for: " + str(round(maker_set_price_sell,5)))
                 return Decimal(maker_set_price_sell), Decimal(order_amount_maker_sell)
 
@@ -302,6 +304,8 @@ cdef class CrossExchangeMiningStrategy(StrategyBase):
                 taker_sell_price = taker_market.c_get_vwap_for_volume(market_pair.taker.trading_pair, False, Decimal(order_amount_maker_buy)).result_price
                 # Therefore you can sell the amount for the price you would get if you sold on the taker market - min profitabilty
                 maker_set_price_buy = taker_sell_price * (1 - (self.min_profitability + self._volatility_pct + self._min_prof_adj))
+                maker_top_bid = maker_market.c_get_price(market_pair.maker.trading_pair, False).result_price
+                maker_set_price_buy = min(maker_set_price_buy, maker_top_bid)
                 # self.notify_hb_app("Looking to buy on maker, Can sell " + str(round(order_amount_maker_buy,2)) + " on taker for: " + str(round(taker_sell_price,5)) + " so buy on maker for: " + str(round(maker_set_price_buy,5)))
                 return Decimal(maker_set_price_buy), Decimal(order_amount_maker_buy)
         except Exception:
