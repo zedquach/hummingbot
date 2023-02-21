@@ -1282,8 +1282,7 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
             # If your ask is lower than the the top ask, increase it to just one tick below top ask
             if self.adjust_order_enabled:
                 # If maker ask order book is not empty
-                if not Decimal.is_nan(next_price_below_top_ask):
-                    maker_price = max(maker_price, next_price_above_top_bid)
+                maker_price = max(maker_price, next_price_above_top_bid)
 
             price_quantum = maker_market.get_order_price_quantum(
                 market_pair.maker.trading_pair,
