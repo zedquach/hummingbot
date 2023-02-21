@@ -1234,13 +1234,6 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
 
             # you are buying on the maker market and selling on the taker market
             maker_price = taker_price / (1 + self.min_profitability)
-
-            # # If your bid is higher than highest bid price, reduce it to one tick above the top bid price
-            if self.adjust_order_enabled:
-                # If maker bid order book is not empty
-
-                maker_price = min(maker_price, top_bid_price)
-
             price_quantum = maker_market.get_order_price_quantum(
                 market_pair.maker.trading_pair,
                 maker_price
@@ -1248,6 +1241,14 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
 
             # Rounds down for ensuring profitability
             maker_price = (floor(maker_price / price_quantum)) * price_quantum
+
+            # # If your bid is higher than highest bid price, reduce it to one tick above the top bid price
+            if self.adjust_order_enabled:
+                # If maker bid order book is not empty
+
+                maker_price = min(maker_price, top_bid_price)
+
+
 
             return maker_price
         else:
@@ -1279,19 +1280,21 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
 
             # You are selling on the maker market and buying on the taker market
             maker_price = taker_price * (1 + self.min_profitability)
+            price_quantum = maker_market.get_order_price_quantum(
+                market_pair.maker.trading_pair,
+                maker_price
+            )
+
+            maker_price = (ceil(maker_price / price_quantum)) * price_quantum
 
             # If your ask is lower than the the top ask, increase it to just one tick below top ask
             if self.adjust_order_enabled:
                 # If maker ask order book is not empty
                 maker_price = max(maker_price, top_ask_price)
 
-            price_quantum = maker_market.get_order_price_quantum(
-                market_pair.maker.trading_pair,
-                maker_price
-            )
 
             # Rounds up for ensuring profitability
-            maker_price = (ceil(maker_price / price_quantum)) * price_quantum
+
 
             return maker_price
 
