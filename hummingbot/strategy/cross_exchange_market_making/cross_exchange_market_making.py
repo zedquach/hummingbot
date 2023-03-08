@@ -1388,12 +1388,12 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
             # Use bid entries in maker order book
             top_bid_price = maker_market.get_price_for_volume(trading_pair,
                                                               False,
-                                                              self._config_map.top_depth_tolerance).result_price
+                                                              self._config_map.top_depth_tolerance + self.order_amount).result_price
 
             # Use ask entries in maker order book
             top_ask_price = maker_market.get_price_for_volume(trading_pair,
                                                               True,
-                                                              self._config_map.top_depth_tolerance).result_price
+                                                              self._config_map.top_depth_tolerance + self.order_amount).result_price
 
         return top_bid_price, top_ask_price
 
