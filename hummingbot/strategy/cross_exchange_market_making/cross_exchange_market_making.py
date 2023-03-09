@@ -1199,7 +1199,7 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
         _, _, quote_rate, base_pair, _, base_rate, _, _, _ = self.get_conversion_rates(market_pair)
         size /= base_rate
 
-        top_bid_price, top_ask_price = self.get_top_bid_ask_from_price_samples(market_pair)
+        top_bid_price, top_ask_price = self.get_top_bid_ask(market_pair)
 
         if is_bid:
             # Maker buy
