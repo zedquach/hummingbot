@@ -554,9 +554,10 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
             # If prices have moved, one side is still profitable, here cancel and
             # place at the next tick.
             if timestamp > anti_hysteresis_timer:
-                if not await self.check_if_price_has_drifted(market_pair, active_order):
-                    need_adjust_order = True
-                    continue
+                # if not await self.check_if_price_has_drifted(market_pair, active_order):
+                need_adjust_order = True
+                self.cancel_maker_order(market_pair, active_order.client_order_id)
+                continue
 
         # If order adjustment is needed in the next tick, set the anti-hysteresis timer s.t. the next order adjustment
         # for the same pair wouldn't happen within the time limit.
@@ -1286,7 +1287,7 @@ class CrossExchangeMarketMakingStrategy(StrategyPyBase):
 
             maker_price = (ceil(maker_price / price_quantum)) * price_quantum
 
-            # If your ask is lower than the the top ask, increase it to just one tick below top ask
+            # If your ask is lower than the top ask, increase it to just one tick below top ask
             if self.adjust_order_enabled:
                 # If maker ask order book is not empty
                 maker_price = max(maker_price, top_ask_price)
